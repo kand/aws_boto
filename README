@@ -1,0 +1,14 @@
+Built for python2.7. Amazon Web Service access through Boto: http://code.google.com/p/boto/
+
+Starting up an EC2 instance
+---------------------------
+From the src/ folder, run python and run:
+	>>> from ec2.util *
+    >>> a = util(<aws access key>,<aws secret key>)		#to initialize the class
+    >>> a.open()										#to open the EC2 connection
+    >>> a.startInstance("instance1", "basicLinuxx32", "t1.micro", <aws key pair name>)	#starts an instance named in VALID_IMGS
+    
+Once this function completes, you should have a running instance visible through the AWS management console.
+
+To stop the instance, call:
+    >>> a.stopInstance("instance1")
