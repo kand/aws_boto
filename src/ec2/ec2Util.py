@@ -1,9 +1,3 @@
-'''
-Created on Feb 17, 2011
-
-@author: kos
-'''
-
 from boto.ec2.connection import EC2Connection
 
 VALID_IMGS = {"basicLinuxx32":{"imageid":"ami-76f0061f",
@@ -14,16 +8,20 @@ SECURITY_GROUPS = {"vertex":{"ssh":[22,22,"0.0.0.0/0"],
                              "http":[80,80,"0.0.0.0/0"]
                              }}
 
-class util(object):
-    '''Methods to start up/manage/terminate ec2 instances'''
+class ec2Util(object):
+    '''Methods to use aws ec2 instances'''
     
-    __ERROR_START_CONN = "[ERROR] Please call open() to open an EC2 connection before attempting to call this function."
-
     def __init__(self,aws_access_key,aws_secret_key,region=None):
+        '''Default constructor.
+        
+            Inputs:  
+                aws_access_key = access key provided by aws
+                aws_secret_key = secret key associated with access key
+        '''
         self.__access_key = aws_access_key
         self.__secret_key = aws_secret_key
         self.__region = region
-        self.__conn = None;
+        self.__conn = None
         self.__runningInstances = {}
         
     def open(self):
@@ -36,6 +34,17 @@ class util(object):
         return self.__conn.get_all_images()
 
     def startInstance(self,name,imageName,instanceType,keyPairName):
+        '''Start up a new ec2 instance.
+        
+            Inputs:
+                name = name to associate with instance
+                imageName = name of image from VALID_IMGS
+                instanceType = type of instance to start up, must be in the
+                    list for the given VALID_IMGS
+                keyPairName = key pair to associate with this image
+            Returns: 
+                True if instance has successfully started up
+        '''
         if not self.__checkConn(): return False
         
         image = self.__conn.get_image(VALID_IMGS[imageName]["imageid"])
@@ -54,6 +63,15 @@ class util(object):
         return True
     
     def stopInstance(self,name):
+        '''Stop an instance. This does not terminate an instance, however, as boto
+            doesn't seem to have a way to do this...
+            
+            Inputs:
+                name = name associated with instance to stop, set when using
+                    startInstance()
+            Returns:
+                True if instance was successfully stopped.
+        '''
         if not self.__checkConn(): return False
         if name not in self.__runningInstances.keys():
             print("Name not found in dict of running instances")
@@ -71,9 +89,10 @@ class util(object):
             
         self.__runningInstances.pop(name)
         print("Complete.")
+        return True
 
     # this function errors out in boto
-    #def close(self):
+    #def close(self):a.close()
     #    '''Close ec2 connection'''
     #    
     #    if not self.__checkConn(): return
@@ -81,6 +100,7 @@ class util(object):
     #    pass
         
     def __checkConn(self):
+        '''Helper function to make sure EC2 connection is open.'''
         if not self.__conn:
             print("[ERROR] must call open() before using this function.")
             return False
